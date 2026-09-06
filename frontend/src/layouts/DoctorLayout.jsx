@@ -21,7 +21,7 @@ export default function DoctorLayout() {
       }}
     >
       {/* 1. Floating Capsule Sidebar (Image 2 style) */}
-      <CapsuleSidebar />
+      <CapsuleSidebar portal="doctor" />
 
       {/* 2. Main Doctor Portal Stage */}
       <main

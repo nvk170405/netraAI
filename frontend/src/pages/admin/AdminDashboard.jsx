@@ -20,9 +20,12 @@ import {
   RefreshCw,
   Zap
 } from 'lucide-react';
+import { useLoading } from '../../context/LoadingContext';
+import StateLoader from '../../components/ui/StateLoader';
 
 export default function AdminDashboard() {
   const { t } = useLanguage();
+  const { startLoading, stopLoading } = useLoading();
   const [activeMetricTab, setActiveMetricTab] = useState('all');
   const [stats, setStats] = useState(ADMIN_STATS);
   const [loading, setLoading] = useState(false);
@@ -57,12 +60,26 @@ export default function AdminDashboard() {
 
   const totalHighRisk = (stats.severe || 0) + (stats.proliferative || 0);
 
-  const handleExportCSV = () => {
-    alert('Exporting anonymized clinical CSV dataset for SIH 2026 epidemiological review...');
+  const handleExportCSV = async () => {
+    startLoading(
+      'Exporting Epidemiological Dataset (CSV)',
+      'Aggregating anonymized fundus triage records across rural clusters for SIH 2026 audit...',
+      'admin'
+    );
+    await new Promise((r) => setTimeout(r, 900));
+    stopLoading();
+    alert('Anonymized clinical CSV dataset exported successfully.');
   };
 
-  const handleExportReport = () => {
-    alert('Generating National Programme for Control of Blindness (NPCB) compliance PDF report...');
+  const handleExportReport = async () => {
+    startLoading(
+      'Generating NPCB Compliance Report (PDF)',
+      'Compiling National Programme for Control of Blindness triage metrics and risk ratios...',
+      'admin'
+    );
+    await new Promise((r) => setTimeout(r, 1100));
+    stopLoading();
+    alert('NPCB Compliance PDF generated successfully.');
   };
 
   return (
@@ -177,6 +194,7 @@ export default function AdminDashboard() {
 
         {/* Top 4 Metrics Row */}
         <div
+          id="metrics"
           style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
@@ -309,6 +327,7 @@ export default function AdminDashboard() {
         <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '24px', marginBottom: '32px' }}>
           {/* Village Camp Performance Intensity Matrix */}
           <div
+            id="clusters"
             style={{
               background: 'rgba(8, 20, 34, 0.75)',
               backdropFilter: 'blur(20px)',
@@ -359,6 +378,7 @@ export default function AdminDashboard() {
 
           {/* ICDR Severity Breakdown Card */}
           <div
+            id="breakdown"
             style={{
               background: 'rgba(8, 20, 34, 0.75)',
               backdropFilter: 'blur(20px)',

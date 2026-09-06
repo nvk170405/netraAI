@@ -22,7 +22,7 @@ export default function HealthWorkerLayout() {
       }}
     >
       {/* 1. Floating Capsule Sidebar (Image 2 style) */}
-      <CapsuleSidebar />
+      <CapsuleSidebar portal="health_worker" />
 
       {/* 2. Main Content Area */}
       <main

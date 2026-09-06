@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useLanguage } from '../../context/LanguageContext';
 import { DOCTOR_CASES } from '../../data/mockData';
@@ -20,15 +20,26 @@ import {
   RefreshCw,
   Sparkles
 } from 'lucide-react';
+import StateLoader from '../../components/ui/StateLoader';
 
 export default function DoctorDashboard() {
   const { t } = useLanguage();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const [filter, setFilter] = useState('all');
+  const urlFilter = searchParams.get('filter');
+  const [filter, setFilter] = useState(urlFilter || 'all');
   const [search, setSearch] = useState('');
   const [cases, setCases] = useState(DOCTOR_CASES);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (urlFilter) {
+      setFilter(urlFilter);
+    } else {
+      setFilter('all');
+    }
+  }, [urlFilter]);
 
   const fetchCases = async () => {
     setLoading(true);
@@ -291,13 +302,20 @@ export default function DoctorDashboard() {
             ].map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setFilter(tab.id)}
+                onClick={() => {
+                  setFilter(tab.id);
+                  if (tab.id === 'all') {
+                    setSearchParams({});
+                  } else {
+                    setSearchParams({ filter: tab.id });
+                  }
+                }}
                 style={{
                   padding: '8px 16px',
                   borderRadius: '100px',
-                  background: filter === tab.id ? 'rgba(20, 184, 166, 0.22)' : 'rgba(15, 23, 42, 0.6)',
-                  border: filter === tab.id ? '1.5px solid #2dd4bf' : '1px solid rgba(255, 255, 255, 0.08)',
-                  color: filter === tab.id ? '#5eead4' : '#94a3b8',
+                  background: filter === tab.id ? 'rgba(56, 189, 248, 0.22)' : 'rgba(15, 23, 42, 0.6)',
+                  border: filter === tab.id ? '1.5px solid #38bdf8' : '1px solid rgba(255, 255, 255, 0.08)',
+                  color: filter === tab.id ? '#38bdf8' : '#94a3b8',
                   fontSize: '0.8rem',
                   fontWeight: filter === tab.id ? 700 : 500,
                   cursor: 'pointer'
@@ -362,7 +380,25 @@ export default function DoctorDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {filteredCases.map((c) => (
+                {loading ? (
+                  <tr>
+                    <td colSpan={6} style={{ padding: '24px 16px' }}>
+                      <StateLoader
+                        variant="table"
+                        title="Syncing Urgent Specialist Review Queue..."
+                        rows={5}
+                        portal="doctor"
+                      />
+                    </td>
+                  </tr>
+                ) : filteredCases.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} style={{ textAlign: 'center', padding: '48px 16px', color: '#94a3b8', fontSize: '0.86rem' }}>
+                      No clinical cases found matching the active filter.
+                    </td>
+                  </tr>
+                ) : (
+                  filteredCases.map((c) => (
                   <motion.tr
                     key={c.id}
                     whileHover={{ backgroundColor: 'rgba(15, 30, 48, 0.6)' }}
@@ -464,7 +500,8 @@ export default function DoctorDashboard() {
                       </button>
                     </td>
                   </motion.tr>
-                ))}
+                ))
+              )}
               </tbody>
             </table>
           </div>

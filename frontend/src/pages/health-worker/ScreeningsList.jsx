@@ -19,6 +19,7 @@ import {
   RefreshCw,
   Sparkles
 } from 'lucide-react';
+import StateLoader from '../../components/ui/StateLoader';
 
 const FILTER_TABS = [
   { id: 'all', label: 'All Patients' },
@@ -267,7 +268,25 @@ export default function ScreeningsList() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((s) => {
+                {loading ? (
+                  <tr>
+                    <td colSpan={6} style={{ padding: '24px 16px' }}>
+                      <StateLoader
+                        variant="table"
+                        title="Querying Encrypted Screening Registry..."
+                        rows={5}
+                        portal="health_worker"
+                      />
+                    </td>
+                  </tr>
+                ) : filtered.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} style={{ textAlign: 'center', padding: '48px 16px', color: '#94a3b8', fontSize: '0.86rem' }}>
+                      No screening records found matching the active filter.
+                    </td>
+                  </tr>
+                ) : (
+                  filtered.map((s) => {
                   const riskStyle = getRiskColor(s.riskLevel);
                   return (
                     <motion.tr
@@ -413,7 +432,8 @@ export default function ScreeningsList() {
                       </td>
                     </motion.tr>
                   );
-                })}
+                })
+              )}
               </tbody>
             </table>
           </div>

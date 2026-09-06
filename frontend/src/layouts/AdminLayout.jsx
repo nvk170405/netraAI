@@ -21,7 +21,7 @@ export default function AdminLayout() {
       }}
     >
       {/* 1. Floating Capsule Sidebar (Image 2 style) */}
-      <CapsuleSidebar />
+      <CapsuleSidebar portal="admin" />
 
       {/* 2. Main Admin Intelligence Stage */}
       <main
