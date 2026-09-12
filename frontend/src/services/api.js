@@ -12,7 +12,10 @@ import {
   DEMO_CASES
 } from '../data/mockData';
 
-const rawApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+const defaultApiUrl = import.meta.env.PROD
+  ? 'https://backend-rho-six-15.vercel.app/api'
+  : 'http://localhost:8000/api';
+const rawApiUrl = import.meta.env.VITE_API_URL || defaultApiUrl;
 export const API_BASE = rawApiUrl.endsWith('/api') ? rawApiUrl : `${rawApiUrl.replace(/\/+$/, '')}/api`;
 
 /**
