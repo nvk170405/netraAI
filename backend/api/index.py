@@ -13,12 +13,7 @@ if current_dir not in sys.path:
 
 from app.main import app
 
-# Export app directly for ASGI-compatible runners
+# Vercel's Python ASGI runtime requires `app` to be exported.
+# Note: Do NOT export a variable named `handler` here because Vercel's Python
+# runtime reserves `handler` for `BaseHTTPRequestHandler` instances and will crash.
 app = app
-
-# Export Mangum handler for AWS Lambda / Vercel Serverless runtime
-try:
-    from mangum import Mangum
-    handler = Mangum(app, lifespan="off")
-except Exception:
-    handler = app

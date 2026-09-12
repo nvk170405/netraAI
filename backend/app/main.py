@@ -97,6 +97,8 @@ app.include_router(sync.router, prefix="/api")
 
 
 @app.get("/", tags=["Health"])
+@app.get("/api", tags=["Health"])
+@app.get("/api/index", tags=["Health"])
 def root():
     """Health check endpoint."""
     return {
