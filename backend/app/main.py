@@ -6,30 +6,42 @@ from fastapi.staticfiles import StaticFiles
 from dotenv import load_dotenv
 import os
 
-# Load .env before anything else
 load_dotenv()
 
 from .database.db import init_db, SessionLocal
 from .seed import run_seed
-from .routers import auth, patients, screenings, doctor, admin, explainability, telehealth
+from .routers import auth, patients, screenings, doctor, admin, explainability, telehealth, reports, sync
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Startup: create tables + seed demo data."""
+ 
     print("[*] NetraAI Backend starting up...")
     init_db()
 
-    # Seed demo data
+   
     db = SessionLocal()
     try:
         run_seed(db)
     finally:
         db.close()
 
-    # Ensure uploads directory exists
     upload_dir = os.getenv("UPLOAD_DIR", "./uploads")
     os.makedirs(upload_dir, exist_ok=True)
+    os.makedirs(os.path.join(upload_dir, "heatmaps"), exist_ok=True)
+    os.makedirs(os.path.join(upload_dir, "reports"), exist_ok=True)
+
+    # Log AI model status
+    try:
+        from .services.ai_service import get_model_status
+        status = get_model_status()
+        print(f"[*] AI Mode: {status['inference_mode']} | Model: {status['model_name']}")
+        if status['model_exists']:
+            print(f"[*] Model path: {status['model_path']}")
+        else:
+            print(f"[*] No trained model found. Using mock predictions.")
+    except Exception as e:
+        print(f"[!] AI status check failed: {e}")
 
     yield
     print("[*] NetraAI Backend shutting down...")
@@ -46,7 +58,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS — allow frontend dev server
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -60,12 +72,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount static uploads
 upload_dir = os.getenv("UPLOAD_DIR", "./uploads")
 os.makedirs(upload_dir, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=upload_dir), name="uploads")
 
-# Register routers under /api prefix
+
 app.include_router(auth.router, prefix="/api")
 app.include_router(patients.router, prefix="/api")
 app.include_router(screenings.router, prefix="/api")
@@ -73,6 +84,8 @@ app.include_router(doctor.router, prefix="/api")
 app.include_router(admin.router, prefix="/api")
 app.include_router(explainability.router, prefix="/api")
 app.include_router(telehealth.router, prefix="/api")
+app.include_router(reports.router, prefix="/api")
+app.include_router(sync.router, prefix="/api")
 
 
 @app.get("/", tags=["Health"])
