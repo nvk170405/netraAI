@@ -61,8 +61,8 @@ DEMO_PREDICTIONS = {
     }
 }
 
-USE_MOCK = os.getenv("MOCK_AI", "true").lower() == "true"
-ML_MODEL_PATH = os.getenv("ML_MODEL_PATH", str(PROJECT_ROOT / "ml" / "models" / "efficientnet_dr.pth"))
+USE_MOCK = (os.getenv("MOCK_AI") or "true").strip().lower() != "false"
+ML_MODEL_PATH = (os.getenv("ML_MODEL_PATH") or "").strip() or str(PROJECT_ROOT / "ml" / "models" / "efficientnet_dr.pth")
 
 # ─── Lazy-load ML modules (only when needed) ─────────────────────────
 _ml_available = None

@@ -16,7 +16,7 @@ from ..services.ai_service import predict, check_image_quality
 router = APIRouter(prefix="/screenings", tags=["Screenings"])
 
 is_serverless = any(k in os.environ for k in ("VERCEL", "VERCEL_ENV", "AWS_LAMBDA_FUNCTION_NAME", "LAMBDA_TASK_ROOT"))
-UPLOAD_DIR = os.getenv("UPLOAD_DIR", "/tmp/uploads" if is_serverless else "./uploads")
+UPLOAD_DIR = (os.getenv("UPLOAD_DIR") or "").strip() or ("/tmp/uploads" if is_serverless else "./uploads")
 
 
 @router.post("", status_code=201)

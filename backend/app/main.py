@@ -29,7 +29,7 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         print(f"[!] Warning DB init/seed: {e}")
 
-    upload_dir = os.getenv("UPLOAD_DIR", "/tmp/uploads" if is_serverless else "./uploads")
+    upload_dir = (os.getenv("UPLOAD_DIR") or "").strip() or ("/tmp/uploads" if is_serverless else "./uploads")
     try:
         os.makedirs(upload_dir, exist_ok=True)
         os.makedirs(os.path.join(upload_dir, "heatmaps"), exist_ok=True)
@@ -106,7 +106,7 @@ app.add_middleware(
 )
 
 is_serverless = any(k in os.environ for k in ("VERCEL", "VERCEL_ENV", "AWS_LAMBDA_FUNCTION_NAME", "LAMBDA_TASK_ROOT"))
-upload_dir = os.getenv("UPLOAD_DIR", "/tmp/uploads" if is_serverless else "./uploads")
+upload_dir = (os.getenv("UPLOAD_DIR") or "").strip() or ("/tmp/uploads" if is_serverless else "./uploads")
 try:
     os.makedirs(upload_dir, exist_ok=True)
     if os.path.isdir(upload_dir):

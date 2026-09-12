@@ -9,9 +9,14 @@ from ..database.db import get_db
 from ..models.models import User
 import os
 
-SECRET_KEY = os.getenv("SECRET_KEY", "netra-ai-secret-key-change-in-production-2026")
-ALGORITHM = os.getenv("ALGORITHM", "HS256")
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "480"))
+SECRET_KEY = (os.getenv("SECRET_KEY") or "").strip() or "netra-ai-secret-key-change-in-production-2026"
+ALGORITHM = (os.getenv("ALGORITHM") or "").strip() or "HS256"
+
+_token_expire = (os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES") or "").strip()
+try:
+    ACCESS_TOKEN_EXPIRE_MINUTES = int(_token_expire) if _token_expire else 480
+except (ValueError, TypeError):
+    ACCESS_TOKEN_EXPIRE_MINUTES = 480
 
 from typing import Optional
 security = HTTPBearer(auto_error=False)

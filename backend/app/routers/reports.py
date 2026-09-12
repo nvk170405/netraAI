@@ -30,7 +30,7 @@ from ..services.auth import get_current_user
 router = APIRouter(prefix="/reports", tags=["Reports"])
 
 is_serverless = any(k in os.environ for k in ("VERCEL", "VERCEL_ENV", "AWS_LAMBDA_FUNCTION_NAME", "LAMBDA_TASK_ROOT"))
-REPORTS_DIR = os.getenv("REPORTS_DIR", "/tmp/reports" if is_serverless else "./uploads/reports")
+REPORTS_DIR = (os.getenv("REPORTS_DIR") or "").strip() or ("/tmp/reports" if is_serverless else "./uploads/reports")
 try:
     os.makedirs(REPORTS_DIR, exist_ok=True)
 except Exception:
