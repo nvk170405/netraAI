@@ -72,6 +72,23 @@ async def restore_vercel_path(request, call_next):
     return await call_next(request)
 
 
+@app.exception_handler(Exception)
+async def global_exception_handler(request, exc):
+    import traceback
+    from fastapi.responses import JSONResponse
+    tb = traceback.format_exc()
+    print("UNHANDLED EXCEPTION:\n", tb)
+    return JSONResponse(
+        status_code=500,
+        content={
+            "status": "error",
+            "error": str(exc),
+            "type": type(exc).__name__,
+            "traceback": tb.splitlines()
+        }
+    )
+
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
