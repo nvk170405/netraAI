@@ -63,6 +63,15 @@ app = FastAPI(
 )
 
 
+@app.middleware("http")
+async def restore_vercel_path(request, call_next):
+    # When Vercel rewrites requests to /api/index, restore original path from x-matched-path
+    matched = request.headers.get("x-matched-path")
+    if matched and request.scope.get("path") in ("/api/index", "/api"):
+        request.scope["path"] = matched
+    return await call_next(request)
+
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
