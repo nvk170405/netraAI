@@ -15,7 +15,7 @@ from ..services.ai_service import predict, check_image_quality
 
 router = APIRouter(prefix="/screenings", tags=["Screenings"])
 
-UPLOAD_DIR = os.getenv("UPLOAD_DIR", "./uploads")
+UPLOAD_DIR = os.getenv("UPLOAD_DIR", "/tmp/uploads" if os.getenv("VERCEL") else "./uploads")
 
 
 @router.post("", status_code=201)

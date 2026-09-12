@@ -12,7 +12,8 @@ import {
   DEMO_CASES
 } from '../data/mockData';
 
-export const API_BASE = 'http://localhost:8000/api';
+const rawApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+export const API_BASE = rawApiUrl.endsWith('/api') ? rawApiUrl : `${rawApiUrl.replace(/\/+$/, '')}/api`;
 
 /**
  * Returns authorization headers with JWT bearer token if available in localStorage.
@@ -38,11 +39,11 @@ async function request(endpoint, options = {}) {
 
   const headers = isFormData
     ? (() => {
-        const token = localStorage.getItem('netra_token');
-        const h = { ...options.headers };
-        if (token) h['Authorization'] = `Bearer ${token}`;
-        return h;
-      })()
+      const token = localStorage.getItem('netra_token');
+      const h = { ...options.headers };
+      if (token) h['Authorization'] = `Bearer ${token}`;
+      return h;
+    })()
     : getAuthHeaders(options.headers);
 
   const controller = new AbortController();

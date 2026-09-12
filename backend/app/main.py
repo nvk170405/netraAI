@@ -26,10 +26,13 @@ async def lifespan(app: FastAPI):
     finally:
         db.close()
 
-    upload_dir = os.getenv("UPLOAD_DIR", "./uploads")
-    os.makedirs(upload_dir, exist_ok=True)
-    os.makedirs(os.path.join(upload_dir, "heatmaps"), exist_ok=True)
-    os.makedirs(os.path.join(upload_dir, "reports"), exist_ok=True)
+    upload_dir = os.getenv("UPLOAD_DIR", "/tmp/uploads" if os.getenv("VERCEL") else "./uploads")
+    try:
+        os.makedirs(upload_dir, exist_ok=True)
+        os.makedirs(os.path.join(upload_dir, "heatmaps"), exist_ok=True)
+        os.makedirs(os.path.join(upload_dir, "reports"), exist_ok=True)
+    except Exception as e:
+        print(f"[!] Warning creating upload directories: {e}")
 
     # Log AI model status
     try:
@@ -67,13 +70,17 @@ app.add_middleware(
         "http://127.0.0.1:5173",
         "http://127.0.0.1:3000",
     ],
+    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-upload_dir = os.getenv("UPLOAD_DIR", "./uploads")
-os.makedirs(upload_dir, exist_ok=True)
+upload_dir = os.getenv("UPLOAD_DIR", "/tmp/uploads" if os.getenv("VERCEL") else "./uploads")
+try:
+    os.makedirs(upload_dir, exist_ok=True)
+except Exception:
+    pass
 app.mount("/uploads", StaticFiles(directory=upload_dir), name="uploads")
 
 

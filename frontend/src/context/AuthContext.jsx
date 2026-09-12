@@ -3,7 +3,8 @@ import { createContext, useContext, useState, useCallback } from 'react';
 const AuthContext = createContext();
 
 // API base URL — points to FastAPI backend
-const API_BASE = 'http://localhost:8000/api';
+const rawApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+const API_BASE = rawApiUrl.endsWith('/api') ? rawApiUrl : `${rawApiUrl.replace(/\/+$/, '')}/api`;
 
 // Demo users fallback (for offline mode)
 const DEMO_USERS = {
