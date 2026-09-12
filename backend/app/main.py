@@ -17,14 +17,15 @@ from .routers import auth, patients, screenings, doctor, admin, explainability, 
 async def lifespan(app: FastAPI):
  
     print("[*] NetraAI Backend starting up...")
-    init_db()
-
-   
-    db = SessionLocal()
     try:
-        run_seed(db)
-    finally:
-        db.close()
+        init_db()
+        db = SessionLocal()
+        try:
+            run_seed(db)
+        finally:
+            db.close()
+    except Exception as e:
+        print(f"[!] Warning DB init/seed: {e}")
 
     upload_dir = os.getenv("UPLOAD_DIR", "/tmp/uploads" if os.getenv("VERCEL") else "./uploads")
     try:
