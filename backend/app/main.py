@@ -77,12 +77,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-upload_dir = os.getenv("UPLOAD_DIR", "/tmp/uploads" if os.getenv("VERCEL") else "./uploads")
+is_serverless = any(k in os.environ for k in ("VERCEL", "VERCEL_ENV", "AWS_LAMBDA_FUNCTION_NAME", "LAMBDA_TASK_ROOT"))
+upload_dir = os.getenv("UPLOAD_DIR", "/tmp/uploads" if is_serverless else "./uploads")
 try:
     os.makedirs(upload_dir, exist_ok=True)
-except Exception:
-    pass
-app.mount("/uploads", StaticFiles(directory=upload_dir), name="uploads")
+    if os.path.isdir(upload_dir):
+        app.mount("/uploads", StaticFiles(directory=upload_dir), name="uploads")
+except Exception as e:
+    print(f"[!] Warning: /uploads static files skipped: {e}")
 
 
 app.include_router(auth.router, prefix="/api")

@@ -29,8 +29,12 @@ from ..services.auth import get_current_user
 
 router = APIRouter(prefix="/reports", tags=["Reports"])
 
-REPORTS_DIR = os.getenv("REPORTS_DIR", "./uploads/reports")
-os.makedirs(REPORTS_DIR, exist_ok=True)
+is_serverless = any(k in os.environ for k in ("VERCEL", "VERCEL_ENV", "AWS_LAMBDA_FUNCTION_NAME", "LAMBDA_TASK_ROOT"))
+REPORTS_DIR = os.getenv("REPORTS_DIR", "/tmp/reports" if is_serverless else "./uploads/reports")
+try:
+    os.makedirs(REPORTS_DIR, exist_ok=True)
+except Exception:
+    pass
 
 
 def _build_probability_chart(probabilities: dict) -> Drawing:

@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker, DeclarativeBase
 import os
 import shutil
 
-is_serverless = bool(os.getenv("VERCEL") or os.getenv("VERCEL_ENV") or os.getenv("AWS_LAMBDA_FUNCTION_NAME"))
+is_serverless = any(k in os.environ for k in ("VERCEL", "VERCEL_ENV", "AWS_LAMBDA_FUNCTION_NAME", "LAMBDA_TASK_ROOT"))
 
 if is_serverless:
     tmp_db = "/tmp/netra_ai.db"
